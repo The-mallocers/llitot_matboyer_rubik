@@ -18,7 +18,7 @@ Parser& Parser::operator=(const Parser& toCopy){
     return *this;
 }
 
-Parser& Parser::operator=(const Parser&& toMove) noexcept{
+Parser& Parser::operator=(Parser&& toMove) noexcept{
     if (&toMove != this){
         this->_rawMoves = std::move(toMove._rawMoves);
         this->_moves = std::move(toMove._moves);
@@ -27,7 +27,7 @@ Parser& Parser::operator=(const Parser&& toMove) noexcept{
     return *this;
 }
 
-Parser::Parser(Parser&& toMove) noexcept : _rawMoves(std::move(toMove._rawMoves)), _moves(toMove._moves){
+Parser::Parser(Parser&& toMove) noexcept : _rawMoves(std::move(toMove._rawMoves)), _moves(std::move(toMove._moves)){
 }
 
 

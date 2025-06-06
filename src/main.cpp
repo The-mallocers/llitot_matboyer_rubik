@@ -1,16 +1,25 @@
-#include <iostream>
 #include "main.hpp"
+#include <iostream>
 
 
-std::ostream& operator<<(std::ostream& os, const t_move&) {
-    return os << "t_move{}";
-}
 
-void printParser(const Parser& p, const std::string& label) {
-    std::cout << label << " rawMoves: " << p.getRawMoves() << ", moves.size(): " << p.getMoves().size() << "\n";
+static void listCube(Cube &cube){
+    for (auto &i : cube.getData()){
+        std::cout << i << std::endl;
+    }
+
+    std::cout << ">------------<" << std::endl;
+
 }
 
 int main() {
+    Cube cube(3);
 
+    listCube(cube);
+
+    Cube ebuc = std::move(cube);
+    listCube(cube);
+    listCube(ebuc);
+    
     return 0;
 }
