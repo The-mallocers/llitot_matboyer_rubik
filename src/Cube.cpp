@@ -8,21 +8,14 @@ Cube::Cube() : _order(0) {
     this->_data.resize(6 * _order * _order);
     this->fill();
 }
-
 Cube::Cube(const int order) : _order(order) {
     this->_data.resize(6 * _order * _order);
     this->fill();
 }
 
-Cube::Cube(const Cube& toCopy) : _order(toCopy._order), _data(toCopy._data){
-}
-
-Cube::Cube(Cube&& toMove) noexcept : _order(std::move(toMove._order)), _data(std::move(toMove._data)){
-}
-
-Cube::~Cube()
-{
-}
+Cube::Cube(const Cube& toCopy) : _order(toCopy._order), _data(toCopy._data){}
+Cube::Cube(Cube&& toMove) noexcept : _order(std::move(toMove._order)), _data(std::move(toMove._data)){}
+Cube::~Cube(){}
 
 // operators overloading
 
