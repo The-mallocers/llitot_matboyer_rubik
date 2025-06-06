@@ -1,11 +1,16 @@
 #include <iostream>
 #include "main.hpp"
 
-int main (){
-    
-    t_move move;
 
-    std::cout << "Welcom to rubik project" << std::endl ;
+std::ostream& operator<<(std::ostream& os, const t_move&) {
+    return os << "t_move{}";
+}
+
+void printParser(const Parser& p, const std::string& label) {
+    std::cout << label << " rawMoves: " << p.getRawMoves() << ", moves.size(): " << p.getMoves().size() << "\n";
+}
+
+int main() {
 
     return 0;
 }
