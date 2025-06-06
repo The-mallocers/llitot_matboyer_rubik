@@ -8,3 +8,8 @@ enum Face {
     F,
     B
 };
+
+enum Direction {
+    CLOCK_WISE,
+    ANTI_CLOCK_WISE
+};
