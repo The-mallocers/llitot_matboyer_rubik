@@ -1,13 +1,8 @@
 #include "Parser.hpp"
 
-Parser::Parser() : _rawMoves(""), _moves(0){
-}
-
-Parser::Parser(const Parser& toCopy) : _rawMoves(toCopy._rawMoves), _moves(toCopy._moves){
-}
-
-Parser::Parser(const std::string rawMoves) : _rawMoves(rawMoves), _moves(0){
-}
+Parser::Parser() : _rawMoves(""), _moves(0){}
+Parser::Parser(const Parser& toCopy) : _rawMoves(toCopy._rawMoves), _moves(toCopy._moves){}
+Parser::Parser(const std::string rawMoves) : _rawMoves(rawMoves), _moves(0){}
 
 Parser& Parser::operator=(const Parser& toCopy){
     if (&toCopy != this){
