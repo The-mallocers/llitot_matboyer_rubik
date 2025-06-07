@@ -1,7 +1,9 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <stdexcept>
 #include "structs.hpp"
+#include "utils/ParserUtils.hpp"
 
 
 class Parser
@@ -25,7 +27,6 @@ public:
     const std::string getRawMoves() const;
 
     ~Parser();
-    // later i'll put custom exceptions here.
 };
 
 
