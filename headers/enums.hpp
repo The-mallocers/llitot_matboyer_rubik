@@ -6,7 +6,8 @@ enum Face {
     R,
     L,
     F,
-    B
+    B,
+    ERROR
 };
 
 enum Direction {
