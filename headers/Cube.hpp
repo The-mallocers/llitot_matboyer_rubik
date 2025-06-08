@@ -3,12 +3,19 @@
 #include "structs.hpp"
 #include <vector>
 #include <map>
+#include <numeric>
+#include "math.hpp"
 
 class Cube
 {
     private:
         unsigned _order;
         std::vector<Color> _data;
+
+        std::map<Face, std::vector<Face>> _relatedFaces;
+
+        void createFaceRelations();
+        void init();
         void fill();
         bool isSolved() const;
         void applyMove(t_move move);
