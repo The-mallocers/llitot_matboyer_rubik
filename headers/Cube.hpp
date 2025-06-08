@@ -2,13 +2,13 @@
 #include "enums.hpp"
 #include "structs.hpp"
 #include <vector>
+#include <map>
 
 class Cube
 {
     private:
         unsigned _order;
         std::vector<Color> _data;
-
         void fill();
         bool isSolved() const;
         void applyMove(t_move move);
@@ -23,10 +23,7 @@ class Cube
         Cube &operator=(Cube&& toMove) noexcept;
 
         void applyMoves(std::vector<t_move> moves);
-
         const std::vector<Color> getData() const;
+
+        static std::map<Face, std::vector<int>> normals;
 };
-
-
-
-

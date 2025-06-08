@@ -1,6 +1,15 @@
 #include "Cube.hpp"
 #include <iostream>
 
+// static declarations
+std::map<Face, std::vector<int>> Cube::normals = {
+    {Face::U , {0, 1, 0}},
+    {Face::D , {0, -1, 0}},
+    {Face::R , {1, 0, 0}},
+    {Face::L , {-1, 0, 0}},
+    {Face::F , {0, 0, 1}},
+    {Face::B , {0, 0, -1}},
+};
 
 
 // constructors and destructor
@@ -11,6 +20,7 @@ Cube::Cube() : _order(0) {
 Cube::Cube(const int order) : _order(order) {
     this->_data.resize(6 * _order * _order);
     this->fill();
+
 }
 
 Cube::Cube(const Cube& toCopy) : _order(toCopy._order), _data(toCopy._data){}
