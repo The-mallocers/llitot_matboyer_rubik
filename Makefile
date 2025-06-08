@@ -1,7 +1,7 @@
 CXX := g++
 CXXFLAGS := -Wall -Wextra -Werror -std=c++23 -Iheaders -Iheaders/utils -Itemplates 
 
-SRC := src/main.cpp src/Parser.cpp src/Cube.cpp src/Algorithm.cpp src/Solver.cpp src/ParserUtils.cpp
+SRC := src/main.cpp src/Parser.cpp src/Cube.cpp src/Algorithm.cpp src/Solver.cpp src/ParserUtils.cpp src/math.cpp
 
 OBJDIR := build
 
