@@ -15,6 +15,13 @@ enum Direction {
     ANTI_CLOCK_WISE
 };
 
+enum LocalCoordinate {
+    RIGHT,
+    TOP,
+    LEFT,
+    DOWN,
+};
+
 enum Color {
     WHITE,
     YELLOW,

@@ -5,6 +5,7 @@
 #include <map>
 #include <numeric>
 #include "math.hpp"
+#include "utils/printing.hpp"
 
 class Cube
 {
@@ -13,8 +14,13 @@ class Cube
         std::vector<Color> _data;
 
         std::map<Face, std::vector<Face>> _relatedFaces;
+        std::map<Face, std::map<LocalCoordinate, std::vector<int>>> _localCoordinates;
 
+        unsigned faceStart(Face face);
+        unsigned faceEnd(Face face);
         void createFaceRelations();
+        std::map<LocalCoordinate, std::vector<int>> findLocalCoordinates(Face face);
+        void mapLocalCoordinates();
         void init();
         void fill();
         bool isSolved() const;

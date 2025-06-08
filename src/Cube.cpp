@@ -74,9 +74,34 @@ void Cube::createFaceRelations() {
 
 }
 
-void Cube::init() {
-    this->createFaceRelations();
-    this->fill();
+
+std::map<LocalCoordinate, std::vector<int>> Cube::findLocalCoordinates(Face face){
+    std::map<LocalCoordinate, std::vector<int>> local;
+    const std::vector<int> &faceNormal = normals[face];
+    std::vector<int> refVector;
+
+    if (faceNormal == std::vector<int>{0,1,0} || faceNormal == std::vector<int>{0, -1,0})
+        refVector = {1,0,0};
+    else
+        refVector = {0,1,0};
+
+    local[RIGHT] = crossProduct3(faceNormal, refVector);
+    local[LEFT] = multiplyVector(local[RIGHT], -1);
+
+    local[TOP] = crossProduct3(faceNormal, local[RIGHT]);
+    local[DOWN] = multiplyVector(local[TOP], -1);
+
+    return local;
+}
+
+void Cube::mapLocalCoordinates(){
+    unsigned i = 0;
+    while (i < 6){
+        _localCoordinates[static_cast<Face>(i)] = findLocalCoordinates(static_cast<Face>(i));
+        i++;
+    }
+
+    printLocalFaces(_localCoordinates);
 }
 
 void Cube::fill() {
@@ -86,8 +111,38 @@ void Cube::fill() {
                 this->_data[(faceCount * (_order * _order)) + y * _order + x] = static_cast<Color>(faceCount);
             }
         }
+
+        faceStart(static_cast<Face>(faceCount));
+        faceEnd(static_cast<Face>(faceCount));
     }
 }
+
+void Cube::init() {
+    this->createFaceRelations();
+    this->mapLocalCoordinates();
+    this->fill();
+}
+
+unsigned Cube::faceStart(Face face){
+    unsigned i = 0;
+    unsigned faceStart = 0;
+    while (static_cast<Face>(i) != face) {
+        faceStart += (_order * _order);
+        i++;
+    }
+    return faceStart;
+}
+
+unsigned Cube::faceEnd(Face face){
+    unsigned i = 0;
+    unsigned faceEnd = (_order * _order) - 1;
+    while (static_cast<Face>(i) != face) {
+        faceEnd += (_order * _order);
+        i++;
+    }
+    return faceEnd;
+}
+
 
 bool Cube::isSolved() const {
     // TODO
