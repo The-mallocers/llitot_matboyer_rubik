@@ -166,6 +166,10 @@ void Cube::init() {
     // this->createFaceRelations();
     this->mapLocalCoordinates();
     this->fill();
+
+    // std::cout << ">---------1--------<" << std::endl;
+
+    // this->print();
 }
 
 unsigned Cube::faceStart(Face face){
@@ -196,12 +200,51 @@ bool Cube::isSolved() const {
 
 
 void Cube::applyMove(t_move move) {
-    t_rotation rotation = encodeRotation(move);
 
-    printVector(rotation.faceIndices);
+    for (int times = 0 ; times < move.times; times++){
+        t_rotation originalState = encodeRotation(move);
+            t_rotation postRotationState = originalState.rotate(move.direction);
+            const std::vector<Color> originalCubeData(_data);
+            // std::cout << ">---------1--------<" << std::endl;
+            // printVector(originalState.faceIndices);
+            // for (auto &edge : originalState.edgesIndices)
+            //     printVector(edge);
 
-    for (auto &edge : rotation.edgesIndices)
-        printVector(edge);
+            // std::cout << ">---------2--------<" << std::endl;
+
+            // printVector(postRotationState.faceIndices);
+            // for (auto &edge : postRotationState.edgesIndices){
+            //     printVector(edge);
+            //     for (auto &indice : edge)
+            //         _data
+            // }
+
+
+            for (unsigned i = 0; i < 4 ; i++){
+                for (unsigned j = 0; j < 3 ; j++){
+                    int oldValueIndex = originalState.edgesIndices[i][j];
+                    int newValueIndex = postRotationState.edgesIndices[i][j];
+
+                    _data[oldValueIndex] = originalCubeData[newValueIndex];
+                }
+            }
+
+        }
+        // print();
+    
+
+}
+
+void Cube::print(){
+    for (unsigned i = 0; i < 6; i++){
+        std::cout << faceToStr(static_cast<Face>(i)) << " :\n" ;
+        for (unsigned j = 0; j < 3; j++){
+            for (unsigned k = 0; k < 3; k++){
+                std::cout << _data[(i * (_order * _order)) + j * _order + k] ;
+            }
+            std::cout  << std::endl;
+        }
+    }
 }
 
 // public member functions
