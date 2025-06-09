@@ -18,6 +18,15 @@ std::map<LocalCoordinate, std::vector<int>> Cube::localCoordinatesIndices = {
     {LocalCoordinate::RIGHT,  {2,5,8}},
 };
 
+std::map<Face, std::vector<Face>> Cube::_relatedFaces = {
+    {F, {U, R, D, L}},
+    {B, {U, L, D, R}},
+    {U, {B, R, F, L}},
+    {D, {F, R, B, L}},
+    {R, {U, B, D, F}},
+    {L, {U, F, D, B}},
+};
+
 // constructors and destructor
 Cube::Cube() : _order(0) {
     this->_data.resize(6 * _order * _order);
@@ -55,30 +64,29 @@ Cube &Cube::operator=(Cube&& toMove) noexcept{
 
 // private memeber functions
 
-void Cube::createFaceRelations() {
-    for (unsigned i = 0; i < 6 ; ++i){
-        const std::vector<int> &normal_1 = normals[static_cast<Face>(i)];
-        std::vector<Face> relatedFaces;
+// void Cube::createFaceRelations() {
+//     for (unsigned i = 0; i < 6 ; ++i){
+//         const std::vector<int> &normal_1 = normals[static_cast<Face>(i)];
+//         std::vector<Face> relatedFaces;
 
-        for (unsigned j = 0; j < 6 ; ++j) {
-            if (i == j)
-                continue;
-            const std::vector<int> &normal_2 = normals[static_cast<Face>(j)];
-            const std::vector<int> crossProduct = crossProduct3(normal_1, normal_2);
+//         for (unsigned j = 0; j < 6 ; ++j) {
+//             if (i == j)
+//                 continue;
+//             const std::vector<int> &normal_2 = normals[static_cast<Face>(j)];
+//             const std::vector<int> crossProduct = crossProduct3(normal_1, normal_2);
 
-            int vectorSum = std::accumulate(crossProduct.begin(), crossProduct.end(), 0);
-            if (vectorSum == 0)
-                continue;
+//             int vectorSum = std::accumulate(crossProduct.begin(), crossProduct.end(), 0);
+//             if (vectorSum == 0 || crossProduct == multiplyVector(normal_1, -1))
+//                 continue;
 
-            relatedFaces.push_back(static_cast<Face>(j));
-        }
+//             relatedFaces.push_back(static_cast<Face>(j));
+//         }
 
 
-        this->_relatedFaces[static_cast<Face>(i)] = relatedFaces;
+//         this->_relatedFaces[static_cast<Face>(i)] = relatedFaces;
+//     }
 
-    }
-
-}
+// }
 
 
 std::map<LocalCoordinate, std::vector<int>> Cube::findLocalCoordinates(Face face){
@@ -155,7 +163,7 @@ void Cube::fill() {
 }
 
 void Cube::init() {
-    this->createFaceRelations();
+    // this->createFaceRelations();
     this->mapLocalCoordinates();
     this->fill();
 }
