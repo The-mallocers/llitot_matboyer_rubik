@@ -29,12 +29,21 @@ std::vector<int> crossProduct3(const std::vector<int>&A, const std::vector<int> 
     return C;
 }
 
-
 std::vector<int> multiplyVector(const std::vector<int>&A, int multiplier){
     std::vector<int> result;
     result.resize(A.size());
     for (unsigned i = 0 ; i < A.size() ; i++){
         result[i] = A[i] * multiplier;
+    }
+
+    return result;
+}
+
+std::vector<int> addIntToVector(const std::vector<int>&A, int toAdd) {
+    std::vector<int> result;
+    result.resize(A.size());
+    for (unsigned i = 0 ; i < A.size() ; i++){
+        result[i] = A[i] + toAdd;
     }
 
     return result;

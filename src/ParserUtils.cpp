@@ -56,6 +56,8 @@ std::vector<std::string> tokenizer(std::string &input, char splitter) {
 
 
 bool tokenIsValid(std::string token) {
+    if (token.empty())
+        throw std::invalid_argument("Only one space is allowed between two moves in a sequence.");
     if (token.size() > 2)
         throw std::invalid_argument("The move > " + token + " < is not valid. please use the standard notation");
     for (unsigned i = 0 ; i < token.size(); ++i){

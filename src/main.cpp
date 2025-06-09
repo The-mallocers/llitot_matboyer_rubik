@@ -12,5 +12,7 @@ int main(int argc, char *argv[]) {
     Parser parser(argv[1]);
 
     Cube cube(3);
+
+    cube.applyMoves(parser.getMoves());
     return 0;
 }
