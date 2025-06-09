@@ -13,12 +13,15 @@ class Cube
         unsigned _order;
         std::vector<Color> _data;
 
-        std::map<Face, std::vector<Face>> _relatedFaces;
+        static std::map<Face, std::vector<Face>> _relatedFaces;
         std::map<Face, std::map<LocalCoordinate, std::vector<int>>> _localCoordinates;
+
 
         unsigned faceStart(Face face);
         unsigned faceEnd(Face face);
         void createFaceRelations();
+        std::vector<std::vector<int>> getFaceEdges(Face face);
+        t_rotation encodeRotation(t_move move);
         std::map<LocalCoordinate, std::vector<int>> findLocalCoordinates(Face face);
         void mapLocalCoordinates();
         void init();
@@ -39,4 +42,5 @@ class Cube
         const std::vector<Color> getData() const;
 
         static std::map<Face, std::vector<int>> normals;
+        static std::map<LocalCoordinate, std::vector<int>> localCoordinatesIndices;
 };

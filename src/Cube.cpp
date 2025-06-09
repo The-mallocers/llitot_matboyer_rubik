@@ -11,6 +11,21 @@ std::map<Face, std::vector<int>> Cube::normals = {
     {Face::B , {0, 0, -1}},
 };
 
+std::map<LocalCoordinate, std::vector<int>> Cube::localCoordinatesIndices = {
+    {LocalCoordinate::TOP,    {0,1,2}},
+    {LocalCoordinate::DOWN,   {6,7,8}},
+    {LocalCoordinate::LEFT,   {0,3,6}},
+    {LocalCoordinate::RIGHT,  {2,5,8}},
+};
+
+std::map<Face, std::vector<Face>> Cube::_relatedFaces = {
+    {F, {U, R, D, L}},
+    {B, {U, L, D, R}},
+    {U, {B, R, F, L}},
+    {D, {F, R, B, L}},
+    {R, {U, B, D, F}},
+    {L, {U, F, D, B}},
+};
 
 // constructors and destructor
 Cube::Cube() : _order(0) {
@@ -49,30 +64,29 @@ Cube &Cube::operator=(Cube&& toMove) noexcept{
 
 // private memeber functions
 
-void Cube::createFaceRelations() {
-    for (unsigned i = 0; i < 6 ; ++i){
-        const std::vector<int> &normal_1 = normals[static_cast<Face>(i)];
-        std::vector<Face> relatedFaces;
+// void Cube::createFaceRelations() {
+//     for (unsigned i = 0; i < 6 ; ++i){
+//         const std::vector<int> &normal_1 = normals[static_cast<Face>(i)];
+//         std::vector<Face> relatedFaces;
 
-        for (unsigned j = 0; j < 6 ; ++j) {
-            if (i == j)
-                continue;
-            const std::vector<int> &normal_2 = normals[static_cast<Face>(j)];
-            const std::vector<int> crossProduct = crossProduct3(normal_1, normal_2);
+//         for (unsigned j = 0; j < 6 ; ++j) {
+//             if (i == j)
+//                 continue;
+//             const std::vector<int> &normal_2 = normals[static_cast<Face>(j)];
+//             const std::vector<int> crossProduct = crossProduct3(normal_1, normal_2);
 
-            int vectorSum = std::accumulate(crossProduct.begin(), crossProduct.end(), 0);
-            if (vectorSum == 0)
-                continue;
+//             int vectorSum = std::accumulate(crossProduct.begin(), crossProduct.end(), 0);
+//             if (vectorSum == 0 || crossProduct == multiplyVector(normal_1, -1))
+//                 continue;
 
-            relatedFaces.push_back(static_cast<Face>(j));
-        }
+//             relatedFaces.push_back(static_cast<Face>(j));
+//         }
 
 
-        this->_relatedFaces[static_cast<Face>(i)] = relatedFaces;
+//         this->_relatedFaces[static_cast<Face>(i)] = relatedFaces;
+//     }
 
-    }
-
-}
+// }
 
 
 std::map<LocalCoordinate, std::vector<int>> Cube::findLocalCoordinates(Face face){
@@ -101,7 +115,41 @@ void Cube::mapLocalCoordinates(){
         i++;
     }
 
-    printLocalFaces(_localCoordinates);
+    // printLocalFaces(_localCoordinates);
+}
+
+std::vector<std::vector<int>> Cube::getFaceEdges(Face face){
+    std::vector<int> faceNormal = Cube::normals[face];
+    std::vector<std::vector<int>> edgesCoordinates;
+
+    std::vector<Face> relatedFaces = _relatedFaces[face];
+
+    for (auto &relatedFace : relatedFaces){
+        auto &locals = _localCoordinates[relatedFace];
+        for (auto &[key, coordinates] : locals){
+            if (doProduct(faceNormal, coordinates) == 1){
+                edgesCoordinates.push_back(addIntToVector(localCoordinatesIndices[key], faceStart(relatedFace)));
+                break;
+            }
+            continue;
+        }
+    }
+
+    return edgesCoordinates;
+}
+
+t_rotation Cube::encodeRotation(t_move move){
+    t_rotation rotation;
+    unsigned i = faceStart(move.face);
+
+    while (i <= faceEnd(move.face)){
+        rotation.faceIndices.push_back(i);
+        i++;
+    }
+
+    rotation.edgesIndices = getFaceEdges(move.face);
+
+    return rotation;
 }
 
 void Cube::fill() {
@@ -111,14 +159,11 @@ void Cube::fill() {
                 this->_data[(faceCount * (_order * _order)) + y * _order + x] = static_cast<Color>(faceCount);
             }
         }
-
-        faceStart(static_cast<Face>(faceCount));
-        faceEnd(static_cast<Face>(faceCount));
     }
 }
 
 void Cube::init() {
-    this->createFaceRelations();
+    // this->createFaceRelations();
     this->mapLocalCoordinates();
     this->fill();
 }
@@ -151,15 +196,21 @@ bool Cube::isSolved() const {
 
 
 void Cube::applyMove(t_move move) {
-    // TODO
-    (void)move;
+    t_rotation rotation = encodeRotation(move);
+
+    printVector(rotation.faceIndices);
+
+    for (auto &edge : rotation.edgesIndices)
+        printVector(edge);
 }
 
 // public member functions
 
 void Cube::applyMoves(std::vector<t_move> moves){
-    // TODO
-    (void)moves;
+    // (void) moves;
+    for (auto &move : moves) {
+        applyMove(move);
+    }
 }
 
 const std::vector<Color> Cube::getData() const {
