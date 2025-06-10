@@ -3,16 +3,16 @@
 enum Face {
     U,
     D,
-    R,
-    L,
     F,
     B,
+    L,
+    R,
     ERROR
 };
 
 enum Direction {
-    CLOCK_WISE,
-    ANTI_CLOCK_WISE
+    CLOCK_WISE = -1,
+    ANTI_CLOCK_WISE = 1
 };
 
 enum LocalCoordinate {
@@ -25,8 +25,8 @@ enum LocalCoordinate {
 enum Color {
     WHITE,
     YELLOW,
-    BLUE,
     GREEN,
+    BLUE,
     ORANGE,
     RED
 };
