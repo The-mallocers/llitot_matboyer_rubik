@@ -20,6 +20,28 @@ std::string faceToStr(Face face){
     }
 }
 
+
+std::string colorToStr(Color color){
+    switch (color)
+    {
+    case WHITE:
+        return "W";
+    case YELLOW:
+        return "Y";
+    case GREEN:
+        return "G";
+    case BLUE:
+        return "B";
+    case RED:
+        return "R";
+    case ORANGE:
+        return "O";
+    default:
+        return "error";
+    }
+}
+
+
 std::string localToStr(LocalCoordinate local){
     switch (local)
     {

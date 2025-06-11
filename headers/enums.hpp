@@ -11,15 +11,15 @@ enum Face {
 };
 
 enum Direction {
-    CLOCK_WISE = -1,
-    ANTI_CLOCK_WISE = 1
+    ANTI_CLOCK_WISE = 1,
+    CLOCK_WISE = -1
 };
 
 enum LocalCoordinate {
-    RIGHT,
     TOP,
-    LEFT,
+    RIGHT,
     DOWN,
+    LEFT,
 };
 
 enum Color {
@@ -28,5 +28,5 @@ enum Color {
     GREEN,
     BLUE,
     ORANGE,
-    RED
+    RED,
 };
