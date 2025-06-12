@@ -12,3 +12,4 @@ void printVector(const std::vector<int> &vect);
 std::string faceToStr(Face face);
 
 std::string localToStr(LocalCoordinate local);
+std::string colorToStr(Color color);

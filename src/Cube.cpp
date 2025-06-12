@@ -200,26 +200,19 @@ bool Cube::isSolved() const {
 
 
 void Cube::applyMove(t_move move) {
-
+    std::cout << ">---------1--------<" << std::endl;
+    print();
     for (int times = 0 ; times < move.times; times++){
         t_rotation originalState = encodeRotation(move);
-            t_rotation postRotationState = originalState.rotate(move.direction);
+            t_rotation postRotationState = originalState.rotate(move.direction, _order);
             const std::vector<Color> originalCubeData(_data);
-            // std::cout << ">---------1--------<" << std::endl;
-            // printVector(originalState.faceIndices);
-            // for (auto &edge : originalState.edgesIndices)
-            //     printVector(edge);
 
-            // std::cout << ">---------2--------<" << std::endl;
+            for (unsigned i = 0; i < 9; i++){
+                int oldValueIndex = originalState.faceIndices[i];
+                int newValueIndex = postRotationState.faceIndices[i];
 
-            // printVector(postRotationState.faceIndices);
-            // for (auto &edge : postRotationState.edgesIndices){
-            //     printVector(edge);
-            //     for (auto &indice : edge)
-            //         _data
-            // }
-
-
+                _data[oldValueIndex] = originalCubeData[newValueIndex];
+            }
             for (unsigned i = 0; i < 4 ; i++){
                 for (unsigned j = 0; j < 3 ; j++){
                     int oldValueIndex = originalState.edgesIndices[i][j];
@@ -230,20 +223,36 @@ void Cube::applyMove(t_move move) {
             }
 
         }
-        // print();
-    
+
+    std::cout << ">---------2--------<" << std::endl;
+    print();
+
+}
+
+
+void Cube::printFace(Face face){
+
+    unsigned start = faceStart(face);
+    unsigned end = faceEnd(face);
+
+    std::cout << faceToStr(face) << " :" << std::endl;
+
+    unsigned count = 0;
+    while (start <= end){
+        if (count % 3 == 0)
+            std::cout << std::endl;
+        std::cout << colorToStr(static_cast<Color>(_data[start])) << " ";
+        count++;
+        start++;
+    }
+
+    std::cout << std::endl;
 
 }
 
 void Cube::print(){
     for (unsigned i = 0; i < 6; i++){
-        std::cout << faceToStr(static_cast<Face>(i)) << " :\n" ;
-        for (unsigned j = 0; j < 3; j++){
-            for (unsigned k = 0; k < 3; k++){
-                std::cout << _data[(i * (_order * _order)) + j * _order + k] ;
-            }
-            std::cout  << std::endl;
-        }
+        printFace(static_cast<Face>(i));
     }
 }
 

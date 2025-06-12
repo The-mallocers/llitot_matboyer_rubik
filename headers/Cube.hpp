@@ -12,6 +12,7 @@ class Cube
     private:
         unsigned _order;
         std::vector<Color> _data;
+        void printFace(Face face);
         void print();
         static std::map<Face, std::vector<Face>> _relatedFaces;
         std::map<Face, std::map<LocalCoordinate, std::vector<int>>> _localCoordinates;
