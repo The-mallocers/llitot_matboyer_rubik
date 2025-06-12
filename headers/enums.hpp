@@ -11,8 +11,8 @@ enum Face {
 };
 
 enum Direction {
-    ANTI_CLOCK_WISE = 1,
-    CLOCK_WISE = -1
+    ANTI_CLOCK_WISE = -1,
+    CLOCK_WISE = 1
 };
 
 enum LocalCoordinate {
