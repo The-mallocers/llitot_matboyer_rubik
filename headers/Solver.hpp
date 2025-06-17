@@ -7,8 +7,7 @@
 #include <vector>
 #include <ctime>
 
-// Getter for the original cube's copy.
-
+class Algorithm;
 class Solver {
     private:
         int _numberOfMoves;
@@ -16,6 +15,8 @@ class Solver {
         std::vector<t_move> _solveSequence;
         time_t _timestamp;
         Cube _originalCubeCopy;
+
+        int flippedEdgesHeuristic();
 
         Algorithm *findAlgorithm(const Cube &cube); // not initializing this one in it's file because the flags will not let me compile.
 
