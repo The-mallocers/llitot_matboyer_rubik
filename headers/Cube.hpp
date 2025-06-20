@@ -15,11 +15,10 @@ class Cube
         void printFace(Face face);
         void print();
         static std::map<Face, std::vector<Face>> _relatedFaces;
+        static std::map<Face, std::vector<int>> normals;
+        static std::map<LocalCoordinate, std::vector<int>> localCoordinatesIndices;
         std::map<Face, std::map<LocalCoordinate, std::vector<int>>> _localCoordinates;
 
-
-        unsigned faceStart(Face face);
-        unsigned faceEnd(Face face);
         void createFaceRelations();
         std::vector<std::vector<int>> getFaceEdges(Face face);
         t_rotation encodeRotation(t_move move);
@@ -42,6 +41,14 @@ class Cube
         void applyMoves(std::vector<t_move> moves);
         const std::vector<Color> getData() const;
 
-        static std::map<Face, std::vector<int>> normals;
-        static std::map<LocalCoordinate, std::vector<int>> localCoordinatesIndices;
+
+        std::map<Face, std::vector<Face>> getRelatedFaces();
+        std::map<Face, std::vector<int>> getNormals();
+        std::map<LocalCoordinate, std::vector<int>> getLocalCoordinatesIndices();
+        std::map<Face, std::map<LocalCoordinate, std::vector<int>>> getLocalCoordinates();
+
+        unsigned faceStart(Face face);
+        unsigned faceEnd(Face face);
+        Face getFaceFromIndex(unsigned index);
+
 };
