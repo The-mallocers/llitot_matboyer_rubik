@@ -17,7 +17,7 @@ class Thistlethwaite : public Algorithm {
         int IDAStar();
 
     public:
-        Thistlethwaite();
+        Thistlethwaite(const Solver &solver);
         const std::vector<t_move> getSequence() override;
         ~Thistlethwaite() override;
 };

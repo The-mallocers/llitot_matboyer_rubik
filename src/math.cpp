@@ -48,3 +48,17 @@ std::vector<int> addIntToVector(const std::vector<int>&A, int toAdd) {
 
     return result;
 }
+
+std::vector<int> subVectors(const std::vector<int>&A, const std::vector<int> &B){
+    if (A.size() != B.size()){
+        throw std::invalid_argument("Both vectors must be of the same size.");
+        // return INT_MIN;
+    }
+    std::vector<int> result;
+    result.resize(A.size());
+    for (unsigned i = 0 ; i < A.size() ; i++){
+        result[i] = A[i] - B[i];
+    }
+
+    return result;
+}

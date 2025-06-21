@@ -38,7 +38,7 @@ Cube::Cube(const int order) : _order(order) {
 
 }
 
-Cube::Cube(const Cube& toCopy) : _order(toCopy._order), _data(toCopy._data){}
+Cube::Cube(const Cube& toCopy) : _order(toCopy._order), _data(toCopy._data), _localCoordinates(toCopy._localCoordinates){}
 Cube::Cube(Cube&& toMove) noexcept : _order(std::move(toMove._order)), _data(std::move(toMove._data)){}
 Cube::~Cube(){}
 
@@ -48,6 +48,7 @@ Cube &Cube::operator=(const Cube& toCopy) {
     if (&toCopy != this){
         this->_order = toCopy._order;
         this->_data = toCopy._data;
+        this->_localCoordinates = toCopy._localCoordinates;
     }
     return *this;
 }
@@ -112,6 +113,7 @@ void Cube::mapLocalCoordinates(){
     unsigned i = 0;
     while (i < 6){
         _localCoordinates[static_cast<Face>(i)] = findLocalCoordinates(static_cast<Face>(i));
+        std::cout << "lalalala" << std::endl;
         i++;
     }
 
@@ -166,7 +168,6 @@ void Cube::init() {
     // this->createFaceRelations();
     this->mapLocalCoordinates();
     this->fill();
-
     // std::cout << ">---------1--------<" << std::endl;
 
     // this->print();
@@ -264,7 +265,26 @@ void Cube::applyMoves(std::vector<t_move> moves){
         applyMove(move);
     }
 }
+std::map<Face, std::vector<Face>> Cube::getRelatedFaces(){return _relatedFaces;}
+std::map<Face, std::vector<int>> Cube::getNormals(){return normals;}
+std::map<LocalCoordinate, std::vector<int>> Cube::getLocalCoordinatesIndices(){return localCoordinatesIndices;}
+std::map<Face, std::map<LocalCoordinate, std::vector<int>>> Cube::getLocalCoordinates(){return _localCoordinates;}
+
 
 const std::vector<Color> Cube::getData() const {
     return _data;
+}
+
+
+Face Cube::getFaceFromIndex(unsigned index){
+    unsigned faceCounter  = 0;
+
+    for (unsigned i = 0; i < _data.size(); i += 9){
+        if (i <= index && index < i + 9){
+            return static_cast<Face>(faceCounter);
+        }
+        faceCounter++;
+    }
+
+    throw("No face was found");
 }
