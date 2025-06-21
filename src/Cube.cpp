@@ -201,8 +201,8 @@ bool Cube::isSolved() const {
 
 
 void Cube::applyMove(t_move move) {
-    std::cout << ">---------1--------<" << std::endl;
-    print();
+    // std::cout << ">---------1--------<" << std::endl;
+    // print();
     for (int times = 0 ; times < move.times; times++){
         t_rotation originalState = encodeRotation(move);
             t_rotation postRotationState = originalState.rotate(move.direction, _order);
@@ -225,8 +225,8 @@ void Cube::applyMove(t_move move) {
 
         }
 
-    std::cout << ">---------2--------<" << std::endl;
-    print();
+    // std::cout << ">---------2--------<" << std::endl;
+    // print();
 
 }
 

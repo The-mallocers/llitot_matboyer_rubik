@@ -27,7 +27,6 @@ class Cube
         void init();
         void fill();
         bool isSolved() const;
-        void applyMove(t_move move);
     public:
         Cube();
         Cube(const int order);
@@ -37,7 +36,7 @@ class Cube
 
         Cube &operator=(const Cube& toCopy);
         Cube &operator=(Cube&& toMove) noexcept;
-
+        void applyMove(t_move move);
         void applyMoves(std::vector<t_move> moves);
         const std::vector<Color> getData() const;
 

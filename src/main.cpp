@@ -14,9 +14,9 @@ int main(int argc, char *argv[]) {
 
     Cube cube(3);
     Solver solver(&cube);
-
-    std::cout << "-----------" << solver.flippedEdgesHeuristic() << "-----------" << std::endl;
     cube.applyMoves(parser.getMoves());
-    // std::cout << "-" << solver.flippedEdgesHeuristic() << "-" << std::endl;
+    solver.solve();
+    std::cout << "-" << solver.flippedEdgesHeuristic() << "-" << std::endl;
+
     return 0;
 }

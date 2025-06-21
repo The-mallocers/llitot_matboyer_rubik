@@ -7,7 +7,7 @@ enum Face {
     B,
     L,
     R,
-    ERROR
+    NULL_FACE
 };
 
 enum Direction {

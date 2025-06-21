@@ -105,17 +105,17 @@ void Solver::initEdgeCubiesMap(){
     }
 }
 
-bool Solver::isEdgeFlipped(std::pair<Face, Face> edge){
-    auto normals = _cube->getNormals();
-    std::vector<int> solvedStateNormal1 = normals[edge.first];
-    std::vector<int> solvedStateNormal2 = normals[edge.second];
-    std::vector<int> solvedCross = crossProduct3(solvedStateNormal1, solvedStateNormal2);
+bool Solver::isEdgeFlipped(std::pair<Face, Face> edge, Cube &cube){
+    auto normals = cube.getNormals();
+    // std::vector<int> solvedStateNormal1 = normals[edge.first];
+    // std::vector<int> solvedStateNormal2 = normals[edge.second];
+    // std::vector<int> solvedCross = crossProduct3(solvedStateNormal1, solvedStateNormal2);
     std::array<Color, 2> edgeBaseColor =  _edgeCubiesMap[edge].first;
     std::array<Color, 2> edgeBaseColorReversed =  {edgeBaseColor[1], edgeBaseColor[0]};
 
     for (auto &[currEdge, pair] : _edgeCubiesMap){
         std::array<int, 2> indices = pair.second;
-        std::array<Color, 2> currentColors =  { _cube->getData()[indices[0]], _cube->getData()[indices[1]]} ;
+        std::array<Color, 2> currentColors =  { cube.getData()[indices[0]], cube.getData()[indices[1]]} ;
         if ((currentColors == edgeBaseColor) || (currentColors == edgeBaseColorReversed))
             return (currentColors == edgeBaseColorReversed);
     }
@@ -124,21 +124,34 @@ bool Solver::isEdgeFlipped(std::pair<Face, Face> edge){
     return false;
 }
 
+std::unique_ptr<Algorithm> Solver::findAlgorithm(){
+
+    // for now i only have 1 algorithm so :
+    return std::make_unique<Thistlethwaite>(*this, *this->_cube);
+
+}
+
 // public member functions
-
-
-
 int Solver::flippedEdgesHeuristic(){
+    return this->flippedEdgesHeuristic(*_cube);
+}
+
+int Solver::flippedEdgesHeuristic(Cube &cube){
     int counter = 0;
     for (auto &edge : allEdges){
-        if (isEdgeFlipped(edge))
+        if (isEdgeFlipped(edge, cube))
             counter++;
     }
+
     return  static_cast<int>(std::ceil(static_cast<double>(counter) / 4));
 }
 
-void Solver::solve(Cube &cube){
-    (void)cube;
+void Solver::solve(){
+
+    std::unique_ptr<Algorithm> algorithm = findAlgorithm();
+    std::cout << algorithm->getName() << std::endl;
+
+    algorithm->getSequence();
 }
 
 

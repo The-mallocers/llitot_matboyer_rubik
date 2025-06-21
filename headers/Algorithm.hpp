@@ -3,15 +3,17 @@
 #include <vector>
 #include "enums.hpp"
 #include "structs.hpp"
-#include "Solver.hpp"
+#include "Cube.hpp"
+// #include "Solver.hpp"
 
 class Solver;
 class Algorithm
 {
     protected:
         const std::string _name;
-        const Solver &_solver;
-        Algorithm(const std::string& name, const Solver &solver);
+        Solver &_solver;
+        Cube &_cube;
+        Algorithm(const std::string& name, Solver &solver, Cube &_cube);
     public:
         Algorithm() = delete;
         Algorithm(const Algorithm& toCopy) = delete;

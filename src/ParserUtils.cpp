@@ -26,7 +26,7 @@ static Face getFace(const std::string &face) {
         case 'F':
             return F;
         default:
-            return ERROR;
+            return NULL_FACE;
     }
 }
 

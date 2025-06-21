@@ -11,7 +11,6 @@ class Parser
 private:
     std::string _rawMoves;
     std::vector<t_move> _moves;
-    void parse();
 
 public:
     Parser();
@@ -25,6 +24,7 @@ public:
     const std::vector<t_move> getMoves() const;
 
     const std::string getRawMoves() const;
+    void parse();
 
     ~Parser();
 };

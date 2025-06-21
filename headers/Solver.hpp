@@ -3,13 +3,15 @@
 #include "structs.hpp"
 #include "Cube.hpp"
 #include "Algorithm.hpp"
+#include "Thistlethwaite.hpp"
 #include "math.hpp"
 #include <string>
 #include <vector>
 #include <ctime>
 #include <cmath>
+#include <memory>
 
-class Algorithm;
+class Algorithm;;
 class Solver {
     private:
 
@@ -25,11 +27,10 @@ class Solver {
         std::map<std::pair<Face, Face>, std::pair<std::array<Color, 2> , std::array<int, 2>>> _edgeCubiesMap;
 
 
-
         void initEdgeCubiesMap();
         
-        Algorithm *findAlgorithm(const Cube &cube); // not initializing this one in it's file because the flags will not let me compile.
-        bool isEdgeFlipped(std::pair<Face, Face> edge);
+        std::unique_ptr<Algorithm> findAlgorithm(); // not initializing this one in it's file because the flags will not let me compile.
+        bool isEdgeFlipped(std::pair<Face, Face> edge, Cube &cube);
         
     public:
         Solver();
@@ -43,7 +44,8 @@ class Solver {
         Solver &operator=(Solver&& toMove);
         
         int flippedEdgesHeuristic();
-        void solve(Cube &cube);
+        int flippedEdgesHeuristic(Cube &cube);
+        void solve();
         Cube *getCube() const;
 
 };
