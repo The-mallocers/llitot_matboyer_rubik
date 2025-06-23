@@ -2,11 +2,6 @@
 
 // statics
 
-std::vector<std::pair<Face, Face>> Solver::allEdges = {
-    {U,F}, {U,R}, {U,B}, {U,L},
-    {D,F}, {D,R}, {D,B}, {D,L},
-    {F,R}, {F,L}, {B,R}, {B,L}
-};
 
 
 // constructors / destructor
@@ -96,7 +91,7 @@ std::array<Color, 2> Solver::computeCubesEdgeBaseColors(const std::array<int, 2>
 }
 
 void Solver::initEdgeCubiesMap(){
-    for (auto &edge : allEdges){
+    for (auto &edge : _cube->allEdges){
         std::array<int, 2> indices = computeCubesEdgeIndices(edge.first, edge.second);
         std::array<Color, 2> baseColors = computeCubesEdgeBaseColors(indices);
         _edgeCubiesMap[edge] = {baseColors, indices};
@@ -137,13 +132,15 @@ int Solver::flippedEdgesHeuristic(){
 }
 
 int Solver::flippedEdgesHeuristic(Cube &cube){
-    int counter = 0;
-    for (auto &edge : allEdges){
-        if (isEdgeFlipped(edge, cube))
-            counter++;
-    }
+    // for (auto &edge : _cube->allEdges){
+    //     if (isEdgeFlipped(edge, cube))
+    //         counter++;
+    // }
+
+    int counter = std::count(cube.flipTracker.begin(), cube.flipTracker.end(), true);
 
     return  static_cast<int>(std::ceil(static_cast<double>(counter) / 4));
+    // return counter / 4;
 }
 
 void Solver::solve(){

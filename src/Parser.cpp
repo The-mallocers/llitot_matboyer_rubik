@@ -47,7 +47,7 @@ void Parser::parse() {
 }
 
 
-const std::vector<t_move> Parser::getMoves() const {
+std::vector<t_move> Parser::getMoves() const {
     return _moves;
 };
 

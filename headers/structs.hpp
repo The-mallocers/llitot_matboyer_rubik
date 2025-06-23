@@ -3,7 +3,9 @@
 #include "enums.hpp"
 #include <vector>
 #include <iostream>
+// #include "Cube.hpp"
 
+class Cube;
 typedef struct s_move {
     Face face;
     Direction direction;
@@ -11,32 +13,11 @@ typedef struct s_move {
 } t_move ;
 
 typedef struct s_rotation {
+    Face rotatedFace;
     std::vector<int> faceIndices;
     std::vector<std::vector<int>> edgesIndices;
 
-    s_rotation rotate (Direction direction, unsigned cubeOrder){
-        if (this->faceIndices.empty() || this->edgesIndices.size() < 4)
-            throw std::invalid_argument("Invalid states ineither rotation.faceIndices or rotation.edgesIndices");
-
-        s_rotation newState;
-
-        newState.faceIndices.resize(9);
-        newState.edgesIndices.resize(4);
-
-        for (unsigned i = 0; i < this->faceIndices.size(); i++){
-            int newStateIndex = getFaceRotationIndex(direction, cubeOrder, i);
-            newState.faceIndices[newStateIndex] = this->faceIndices[i];
-        }
-
-        for (unsigned i = 0; i < this->edgesIndices.size() ; ++i) {
-            int newStateIndex = (i + direction + 4) % 4;
-            newState.edgesIndices[newStateIndex] = this->edgesIndices[i];
-        }
-
-        return newState;
-    }
-
-
+    s_rotation rotate (Direction direction, Cube &cube);
 
 private:
     unsigned getFaceRotationIndex(Direction direction, unsigned cubeOrder, unsigned i){

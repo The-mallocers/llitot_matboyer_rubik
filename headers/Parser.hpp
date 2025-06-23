@@ -21,7 +21,7 @@ public:
     Parser& operator=(Parser&& toMove) noexcept;
     
     Parser(Parser&& other) noexcept ;
-    const std::vector<t_move> getMoves() const;
+    std::vector<t_move> getMoves() const;
 
     const std::string getRawMoves() const;
     void parse();

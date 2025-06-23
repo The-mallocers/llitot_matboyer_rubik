@@ -2,6 +2,14 @@
 #include <iostream>
 
 // static declarations
+
+std::vector<std::pair<Face, Face>> Cube::allEdges = {
+    {U,F}, {U,R}, {U,B}, {U,L},
+    {D,F}, {D,R}, {D,B}, {D,L},
+    {F,R}, {F,L}, {B,R}, {B,L}
+};
+
+
 std::map<Face, std::vector<int>> Cube::normals = {
     {Face::U , {0, 1, 0}},
     {Face::D , {0, -1, 0}},
@@ -35,10 +43,10 @@ Cube::Cube() : _order(0) {
 Cube::Cube(const int order) : _order(order) {
     this->_data.resize(6 * _order * _order);
     this->init();
-
+    
 }
 
-Cube::Cube(const Cube& toCopy) : _order(toCopy._order), _data(toCopy._data), _localCoordinates(toCopy._localCoordinates){}
+Cube::Cube(const Cube& toCopy) : _order(toCopy._order), _data(toCopy._data), _localCoordinates(toCopy._localCoordinates) , permutations(toCopy.permutations), flipTracker(toCopy.flipTracker){}
 Cube::Cube(Cube&& toMove) noexcept : _order(std::move(toMove._order)), _data(std::move(toMove._data)){}
 Cube::~Cube(){}
 
@@ -144,11 +152,11 @@ t_rotation Cube::encodeRotation(t_move move){
     t_rotation rotation;
     unsigned i = faceStart(move.face);
 
+    rotation.rotatedFace = move.face;
     while (i <= faceEnd(move.face)){
         rotation.faceIndices.push_back(i);
         i++;
     }
-
     rotation.edgesIndices = getFaceEdges(move.face);
 
     return rotation;
@@ -168,6 +176,10 @@ void Cube::init() {
     // this->createFaceRelations();
     this->mapLocalCoordinates();
     this->fill();
+
+    for (int i = 0 ; i < 12 ; i++)
+        permutations[i] = i;
+    
     // std::cout << ">---------1--------<" << std::endl;
 
     // this->print();
@@ -201,27 +213,52 @@ bool Cube::isSolved() const {
 
 
 void Cube::applyMove(t_move move) {
-    // std::cout << ">---------1--------<" << std::endl;
-    // print();
+    ///////////// 
     for (int times = 0 ; times < move.times; times++){
-        t_rotation originalState = encodeRotation(move);
-            t_rotation postRotationState = originalState.rotate(move.direction, _order);
-            const std::vector<Color> originalCubeData(_data);
 
-            for (unsigned i = 0; i < 9; i++){
-                int oldValueIndex = originalState.faceIndices[i];
-                int newValueIndex = postRotationState.faceIndices[i];
+        std::vector<unsigned> indicesOfAffectedEdges;
+        for (auto& relatedFace : _relatedFaces[move.face])
+            indicesOfAffectedEdges.push_back(indexOfEdge({move.face, relatedFace}));
 
-                _data[oldValueIndex] = originalCubeData[newValueIndex];
-            }
-            for (unsigned i = 0; i < 4 ; i++){
-                for (unsigned j = 0; j < 3 ; j++){
-                    int oldValueIndex = originalState.edgesIndices[i][j];
-                    int newValueIndex = postRotationState.edgesIndices[i][j];
+        std::vector<unsigned> indicesOfAffectedEdgesCpy(indicesOfAffectedEdges);
+        for (unsigned i = 0; i < indicesOfAffectedEdges.size() ; ++i) {
+            int newStateIndex = (i + move.direction + 4) % 4;
+            indicesOfAffectedEdgesCpy[newStateIndex] = indicesOfAffectedEdges[i];
+        }
 
-                    _data[oldValueIndex] = originalCubeData[newValueIndex];
-                }
-            }
+        std::array<unsigned, 12> tempPermutations = permutations;
+        std::array<bool, 12> tempFlipTracker = flipTracker;
+        for (unsigned i = 0; i < indicesOfAffectedEdges.size(); ++i) {
+            unsigned from = indicesOfAffectedEdges[i];
+            unsigned to = indicesOfAffectedEdgesCpy[i];
+            permutations[to] = tempPermutations[from];
+
+            if (move.face == F || move.face == B)
+                flipTracker[to] = !tempFlipTracker[from];
+            else
+                flipTracker[to] = tempFlipTracker[from]; 
+            
+        }
+
+        /////////////// commented out because it's making everything slow
+        // t_rotation originalState = encodeRotation(move);
+        //     t_rotation postRotationState = originalState.rotate(move.direction, *this);
+        //     const std::vector<Color> originalCubeData(_data);
+
+        //     for (unsigned i = 0; i < 9; i++){
+        //         int oldValueIndex = originalState.faceIndices[i];
+        //         int newValueIndex = postRotationState.faceIndices[i];
+
+        //         _data[oldValueIndex] = originalCubeData[newValueIndex];
+        //     }
+        //     for (unsigned i = 0; i < 4 ; i++){
+        //         for (unsigned j = 0; j < 3 ; j++){
+        //             int oldValueIndex = originalState.edgesIndices[i][j];
+        //             int newValueIndex = postRotationState.edgesIndices[i][j];
+
+        //             _data[oldValueIndex] = originalCubeData[newValueIndex];
+        //         }
+        //     }
 
         }
 
@@ -275,6 +312,10 @@ const std::vector<Color> Cube::getData() const {
     return _data;
 }
 
+unsigned Cube::getOrder() const {
+    return _order;
+}
+
 
 Face Cube::getFaceFromIndex(unsigned index){
     unsigned faceCounter  = 0;
@@ -287,4 +328,38 @@ Face Cube::getFaceFromIndex(unsigned index){
     }
 
     throw("No face was found");
+}
+
+void Cube::undo(t_move move){
+    if (move.times == 2){
+        this->applyMove(move);
+        return;
+    }
+    move.direction =  static_cast<Direction>(move.direction * -1);
+    this->applyMove(move);
+}
+
+unsigned Cube::indexOfEdge(const std::pair<Face, Face> &toFind){
+    unsigned count = 0;
+    for (auto &edge : allEdges){
+        if (edge == toFind || edge == std::pair<Face, Face>{toFind.second, toFind.first})
+            break;
+        count++;
+    }
+
+    return count;
+}
+
+std::array<bool, 12> Cube::getFlipTracker(){
+    return flipTracker;
+}
+
+int Cube::encodeEdgeOrientation() {
+    int key = 0;
+
+    for (int i = 0; i < 11; ++i) {
+        key <<= 1;
+        key |= flipTracker[i];
+    }
+    return key;
 }
