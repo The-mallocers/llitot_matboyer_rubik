@@ -132,15 +132,33 @@ int Solver::flippedEdgesHeuristic(){
 }
 
 int Solver::flippedEdgesHeuristic(Cube &cube){
-    // for (auto &edge : _cube->allEdges){
-    //     if (isEdgeFlipped(edge, cube))
-    //         counter++;
-    // }
-
     int counter = std::count(cube.flipTracker.begin(), cube.flipTracker.end(), true);
-
     return  static_cast<int>(std::ceil(static_cast<double>(counter) / 4));
-    // return counter / 4;
+}
+
+
+int Solver::missplacedEDU(){
+    return this->missplacedEDU(*_cube);
+}
+
+int Solver::missplacedEDU(Cube &cube){
+    int counter = 0;
+    std::array<unsigned, 12> basePosition(cube.getBaseEdgePosition());
+    std::array<unsigned, 12> permutations(cube.getPermutations());
+    std::map<unsigned, Slice> UDE_mapping = cube.UDE_mapping;
+
+    for (int i = 0; i < 12; ++i) {
+        // std::cout << faceToStr(cube.allEdges[i].first) << faceToStr(cube.allEdges[i].second) << " edge contains " << faceToStr(cube.allEdges[permutations[i]].first) << faceToStr(cube.allEdges[permutations[i]].second) << std::endl;
+
+        // std::cout << UDE_mapping[basePosition[i]] << " != " <<  UDE_mapping[permutations[i]] << std::endl;
+
+        if (UDE_mapping[basePosition[i]] != UDE_mapping[permutations[i]])
+            counter++;
+    }
+
+    // std::cout << counter << std::endl;
+
+    return  static_cast<int>(std::ceil(static_cast<double>(counter)) / 2);
 }
 
 void Solver::solve(){

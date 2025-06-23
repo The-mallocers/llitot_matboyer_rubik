@@ -21,6 +21,7 @@ class Cube
         static std::map<LocalCoordinate, std::vector<int>> localCoordinatesIndices;
         std::map<Face, std::map<LocalCoordinate, std::vector<int>>> _localCoordinates;
         std::array<unsigned, 12> permutations{};
+        std::array<unsigned, 12> _baseEdgePositions{};
         void createFaceRelations();
         std::vector<std::vector<int>> getFaceEdges(Face face);
         t_rotation encodeRotation(t_move move);
@@ -57,9 +58,12 @@ class Cube
         std::array<bool, 12> getFlipTracker();
 
         static std::vector<std::pair<Face, Face>> allEdges;
+        std::map<unsigned, Slice> UDE_mapping;
         std::array<bool, 12> flipTracker{};
-
+        std::array<unsigned, 12> getBaseEdgePosition();
+        std::array<unsigned, 12> getPermutations();
         int encodeEdgeOrientation();
+        int encodeMissplacedEdgesEDU();
 
 
 };

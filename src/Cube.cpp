@@ -9,7 +9,6 @@ std::vector<std::pair<Face, Face>> Cube::allEdges = {
     {F,R}, {F,L}, {B,R}, {B,L}
 };
 
-
 std::map<Face, std::vector<int>> Cube::normals = {
     {Face::U , {0, 1, 0}},
     {Face::D , {0, -1, 0}},
@@ -27,12 +26,19 @@ std::map<LocalCoordinate, std::vector<int>> Cube::localCoordinatesIndices = {
 };
 
 std::map<Face, std::vector<Face>> Cube::_relatedFaces = {
-    {F, {U, R, D, L}},
-    {B, {U, L, D, R}},
-    {U, {B, R, F, L}},
-    {D, {F, R, B, L}},
-    {R, {U, B, D, F}},
-    {L, {U, F, D, B}},
+    // {F, {U, R, D, L}},
+    // {B, {U, R, D, L}},  // reversed from {U, L, D, R} to match clockwise rotation
+    // {U, {B, R, F, L}},
+    // {D, {F, R, B, L}},
+    // {R, {U, F, D, B}},
+    // {L, {U, F, D, B}},  // reversed from {U, B, D, F}
+
+    {F, {U, R, D, L}},  // Front face: Up, Right, Down, Left (clockwise)
+    {B, {U, L, D, R}},  // Back face: Up, Left, Down, Right (clockwise)
+    {U, {B, R, F, L}},  // Up face: Back, Right, Front, Left (clockwise)
+    {D, {F, R, B, L}},  // Down face: Front, Right, Back, Left (clockwise)
+    {R, {U, B, D, F}},  // Right face: Up, Back, Down, Front (clockwise)
+    {L, {U, F, D, B}},  // Left face: Up, Front, Down, Back (clockwise)
 };
 
 // constructors and destructor
@@ -46,7 +52,7 @@ Cube::Cube(const int order) : _order(order) {
     
 }
 
-Cube::Cube(const Cube& toCopy) : _order(toCopy._order), _data(toCopy._data), _localCoordinates(toCopy._localCoordinates) , permutations(toCopy.permutations), flipTracker(toCopy.flipTracker){}
+Cube::Cube(const Cube& toCopy) : _order(toCopy._order), _data(toCopy._data), _localCoordinates(toCopy._localCoordinates) , permutations(toCopy.permutations),  _baseEdgePositions(toCopy._baseEdgePositions),  UDE_mapping(toCopy.UDE_mapping), flipTracker(toCopy.flipTracker){}
 Cube::Cube(Cube&& toMove) noexcept : _order(std::move(toMove._order)), _data(std::move(toMove._data)){}
 Cube::~Cube(){}
 
@@ -177,9 +183,11 @@ void Cube::init() {
     this->mapLocalCoordinates();
     this->fill();
 
-    for (int i = 0 ; i < 12 ; i++)
+    for (int i = 0 ; i < 12 ; i++){
         permutations[i] = i;
-    
+        _baseEdgePositions[i] = i;
+        UDE_mapping[i] = i < 8 ? UD : E;
+    }
     // std::cout << ">---------1--------<" << std::endl;
 
     // this->print();
@@ -213,10 +221,22 @@ bool Cube::isSolved() const {
 
 
 void Cube::applyMove(t_move move) {
-    ///////////// 
-    for (int times = 0 ; times < move.times; times++){
+//     std::cout << "=== R MOVE DEBUG ===" << std::endl;
+// std::cout << "Related faces for R: ";
+// for (auto face : _relatedFaces[move.face]) {
+//     std::cout << faceToStr(face) << " ";
+// }
+// std::cout << std::endl;
 
+    /////////////
+
+
+// Apply the move logic...
+
+
+    for (int times = 0 ; times < move.times; times++){
         std::vector<unsigned> indicesOfAffectedEdges;
+
         for (auto& relatedFace : _relatedFaces[move.face])
             indicesOfAffectedEdges.push_back(indexOfEdge({move.face, relatedFace}));
 
@@ -229,15 +249,14 @@ void Cube::applyMove(t_move move) {
         std::array<unsigned, 12> tempPermutations = permutations;
         std::array<bool, 12> tempFlipTracker = flipTracker;
         for (unsigned i = 0; i < indicesOfAffectedEdges.size(); ++i) {
-            unsigned from = indicesOfAffectedEdges[i];
-            unsigned to = indicesOfAffectedEdgesCpy[i];
+            unsigned to = indicesOfAffectedEdges[i];
+            unsigned from = indicesOfAffectedEdgesCpy[i];
             permutations[to] = tempPermutations[from];
 
             if (move.face == F || move.face == B)
                 flipTracker[to] = !tempFlipTracker[from];
             else
                 flipTracker[to] = tempFlipTracker[from]; 
-            
         }
 
         /////////////// commented out because it's making everything slow
@@ -354,12 +373,30 @@ std::array<bool, 12> Cube::getFlipTracker(){
     return flipTracker;
 }
 
+std::array<unsigned, 12> Cube::getBaseEdgePosition(){
+    return _baseEdgePositions;
+}
+
+std::array<unsigned, 12> Cube::getPermutations(){
+    return permutations;
+}
 int Cube::encodeEdgeOrientation() {
     int key = 0;
 
     for (int i = 0; i < 11; ++i) {
         key <<= 1;
         key |= flipTracker[i];
+    }
+    return key;
+}
+
+
+int Cube::encodeMissplacedEdgesEDU() {
+    int key = 0;
+
+    for (int i = 0; i < 12; ++i) {
+        key <<= 1;
+        key |= UDE_mapping[_baseEdgePositions[i]] != UDE_mapping[permutations[i]];
     }
     return key;
 }

@@ -30,3 +30,8 @@ enum Color {
     ORANGE,
     RED,
 };
+
+enum Slice {
+    E,
+    UD,
+};

@@ -28,10 +28,10 @@ const std::vector<t_move>Thistlethwaite::G0(){
 
 
 const std::vector<t_move>Thistlethwaite::G1(){
-    Parser parser("U D F2 B2 R2 L2 U2 D2 U' D'");
+    Parser parser("U D R L F2 B2 R2 L2 U2 D2 U' D' R' L'");
     _allowedMoves = parser.getMoves();
-    // _currentHeuristic = [&](Cube &cube) { return _solver.flippedEdgesHeuristic(cube);}; // i will need to add G1 heuristic  here
-    // _cachingCondition = [&](Cube &cube) { return _solver.flippedEdgesHeuristic(cube);}; // i will need to add G1 caching logic here
+    _currentHeuristic = [&](Cube &cube) { return _solver.missplacedEDU(cube);}; 
+    _cachingCondition = [&](Cube &cube) { return cube.encodeMissplacedEdgesEDU();};
 
     std::vector<t_move> sequence;
     IDAStarBaseIteration(sequence);
@@ -45,20 +45,49 @@ const std::vector<t_move>Thistlethwaite::G1(){
 }
 
 const std::vector<t_move> Thistlethwaite::getSequence(){
-    std::vector<t_move> solveSequence; 
+    std::vector<t_move> solveSequence;
 
     auto phaseSequence = G0();
     solveSequence.insert(solveSequence.end(), phaseSequence.begin(), phaseSequence.end());
 
-    // phaseSequence = G1();
-    // solveSequence.insert(solveSequence.end(), phaseSequence.begin(), phaseSequence.end());
+    phaseSequence = G1();
+    solveSequence.insert(solveSequence.end(), phaseSequence.begin(), phaseSequence.end());
 
     std::cout << "----------------found Final Sequence-----------------------" << std::endl;
 
     for (auto move : solveSequence){
-        std::cout << faceToStr(move.face) << " " << move.direction << " " << move.times << "\n";
+        std::cout << faceToStr(move.face);
+        if (move.direction == ANTI_CLOCK_WISE)
+            std::cout << "'" ;
+        if (move.times == 2)
+            std::cout << move.times;
+        std::cout << " ";
         // _cube.applyMove(move);
     }
+        std::cout << "\n";
+
+
+std::cout << "=== FINAL G1 STATE CHECK ===" << std::endl;
+std::array<unsigned, 12> finalPermutations = _cube.getPermutations();
+std::map<unsigned, Slice> UDE_mapping = _cube.UDE_mapping;
+
+for (int i = 0; i < 12; ++i) {
+    unsigned edgeAtPositionI = finalPermutations[i];  // Which edge is at position i
+    Slice expectedSlice = (i < 8) ? UD : E;           // Position i should contain this slice
+    Slice actualSlice = UDE_mapping[edgeAtPositionI]; // But it contains this slice
+    
+    std::cout << "Position " << i << " should have " << (expectedSlice == UD ? "UD" : "E") 
+              << " edge, but has edge " << edgeAtPositionI << " which is " 
+              << (actualSlice == UD ? "UD" : "E");
+    
+    if (expectedSlice != actualSlice) {
+        std::cout << " ❌ MISMATCH!";
+    } else {
+        std::cout << " ✓";
+    }
+    std::cout << std::endl;
+}
+
     return (solveSequence);
 }
 
@@ -90,10 +119,13 @@ void Thistlethwaite::IDAStarBaseIteration(std::vector<t_move> &sequence){
 
 int Thistlethwaite::IDAStar(unsigned depth, unsigned limit, Cube &cube, std::vector<t_move> &sequence, Face lastMove, std::unordered_set<int> &visited){
     int key = _cachingCondition(cube);
+    // std::cout << key << " \n"; 
     if (visited.count(key) > 0)
         return ALREADY_VISITED;
 
     unsigned h = _currentHeuristic(cube);
+    // std::cout << h << " \n" ;
+
     unsigned f = depth + h;
     int newMinLimit = INT_MAX ;
 
@@ -115,7 +147,9 @@ int Thistlethwaite::IDAStar(unsigned depth, unsigned limit, Cube &cube, std::vec
         if (result == FOUND)
             return result;
 
+        // std::cout<<"-"<<std::endl;
         sequence.pop_back();
+
         cube.undo(move);
 
         if (result != ALREADY_VISITED)

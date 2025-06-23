@@ -23,7 +23,6 @@ class Solver {
 
         std::array<int, 2> computeCubesEdgeIndices(Face face1, Face face2);
         std::array<Color, 2> computeCubesEdgeBaseColors(const std::array<int, 2> &indices);
-        // static std::vector<std::pair<Face, Face>> allEdges;
         std::map<std::pair<Face, Face>, std::pair<std::array<Color, 2> , std::array<int, 2>>> _edgeCubiesMap;
 
 
@@ -45,6 +44,8 @@ class Solver {
         
         int flippedEdgesHeuristic();
         int flippedEdgesHeuristic(Cube &cube);
+        int missplacedEDU();
+        int missplacedEDU(Cube &cube);
         void solve();
         Cube *getCube() const;
 
