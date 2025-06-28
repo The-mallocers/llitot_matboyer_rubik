@@ -7,30 +7,33 @@
 #include "Cube.hpp"
 #include "Solver.hpp"
 #include <functional>
-#include <unordered_set>
+#include <set>
 
 
 
-#define FOUND -1
-#define ALREADY_VISITED -2
+// #define FOUND -1
+// #define ALREADY_VISITED -2
 
 // class Solver;
 
 class Thistlethwaite : public Algorithm {
     private:
-
+        int totalIDAStarCalls;
         std::vector<t_move> _allowedMoves;
-        std::function<int(Cube&)> _currentHeuristic;
-        std::function<int(Cube&)> _cachingCondition;
+        std::function<std::pair<int, int>(Cube&)> _currentHeuristic;
+        std::function<std::pair<unsigned long, unsigned long>(Cube&)> _cachingCondition;
+
+        std::vector<std::function<int(Cube&)>> _previousHeuristics;
+
         const std::vector<t_move> G0();
         const std::vector<t_move> G1();
-        void G2();
+        const std::vector<t_move> G2();
         void G3();
 
         const std::vector<t_move> SequenceG0;
         void IDAStarBaseIteration(std::vector<t_move> &sequence);
-        int IDAStar(unsigned depth, unsigned limit, Cube &cube, std::vector<t_move> &sequence, Face lastMove, std::unordered_set<int> &visited);
-
+        std::pair<int,int> IDAStar(unsigned depth, std::pair<int, int> &limit, Cube &cube, std::vector<t_move> &sequence, Face lastMove,  std::set<std::pair<unsigned long, unsigned long>> &visited);
+        bool breaksPreviousPhases(Cube& cube);
     public:
         Thistlethwaite(Solver &solver, Cube &cube);
         const std::vector<t_move> getSequence() override;

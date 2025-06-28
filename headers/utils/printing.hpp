@@ -13,3 +13,5 @@ std::string faceToStr(Face face);
 
 std::string localToStr(LocalCoordinate local);
 std::string colorToStr(Color color);
+
+std::string cornerToStr(Corner corner);

@@ -43,7 +43,7 @@ class Cube
         void applyMove(t_move move);
         void applyMoves(std::vector<t_move> moves);
         const std::vector<Color> getData() const;
-
+        void buildCornerMoveTables();
 
         std::map<Face, std::vector<Face>> getRelatedFaces();
         std::map<Face, std::vector<int>> getNormals();
@@ -54,16 +54,31 @@ class Cube
         unsigned faceEnd(Face face);
         Face getFaceFromIndex(unsigned index);
         unsigned indexOfEdge(const std::pair<Face, Face> &toFind);
-
+        unsigned indexOfCorner(Corner corner, std::vector<Corner> slots);
         std::array<bool, 12> getFlipTracker();
 
         static std::vector<std::pair<Face, Face>> allEdges;
-        std::map<unsigned, Slice> UDE_mapping;
+        static std::vector<Corner> allCorners;
+        static std::map<Face, std::vector<Corner>> _relatedCorners;
+        static std::map<Corner , std::array<Face, 3>> faceOfCorner;
+        static std::map<Edge, std::vector<Slice>> slicesOfEdges;
+
+        std::map<Face, std::vector<std::pair<Corner, Delta>>> _relativeCornerDeltas;
+        // std::map<unsigned, Slice> UDE_mapping;
         std::array<bool, 12> flipTracker{};
+        std::array<unsigned, 8> twistTracker{};
+        std::array<unsigned,8> cornerPermutations{};
+        std::array<unsigned,8> baseCornerPositions{};
+        int computeCornerDelta(Corner corner, t_move &move);
+        int computeCornerDelta(Corner corner, t_move& move, unsigned fromPos, unsigned toPos);
+        int isEdgeOnMSlice( unsigned currentPosition);
         std::array<unsigned, 12> getBaseEdgePosition();
         std::array<unsigned, 12> getPermutations();
-        int encodeEdgeOrientation();
-        int encodeMissplacedEdgesEDU();
-
+        std::array<unsigned, 8> getTwistTracker();
+        unsigned encodeEdgeOrientation();
+        // unsigned encodeMissplacedEdges_SLICE_M_MIDDLE();
+        unsigned long encodetwistedCorners();
+        unsigned long encodeMissplacedEdges_SLICE_M();
+        unsigned long encodeTwistedCorners(const std::vector<unsigned> &toCheck);
 
 };

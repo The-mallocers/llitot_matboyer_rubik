@@ -44,8 +44,10 @@ class Solver {
         
         int flippedEdgesHeuristic();
         int flippedEdgesHeuristic(Cube &cube);
-        int missplacedEDU();
-        int missplacedEDU(Cube &cube);
+        int missplaced_DU_MIDDLE(Cube &cube);
+        int missplaced_M_SLICE(Cube &cube);
+        int twistedCorners();
+        int twistedCorners(Cube &cube);
         void solve();
         Cube *getCube() const;
 

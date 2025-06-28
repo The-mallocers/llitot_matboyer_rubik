@@ -136,30 +136,55 @@ int Solver::flippedEdgesHeuristic(Cube &cube){
     return  static_cast<int>(std::ceil(static_cast<double>(counter) / 4));
 }
 
+int Solver::missplaced_M_SLICE(Cube &cube){
 
-int Solver::missplacedEDU(){
-    return this->missplacedEDU(*_cube);
+    std::vector<unsigned> toCheck ({0,2,4,6});
+
+    int counter = 0;
+    // std::array<unsigned, 12> basePosition(cube.getBaseEdgePosition());
+    std::array<unsigned, 12> permutations(cube.getPermutations());
+    // for (auto &perm : permutations){
+    //     std::cout << perm << " ";
+    // }
+    //     std::cout << std::endl;
+    // // std::map<unsigned, Slice> UDE_mapping = cube.UDE_mapping;
+
+    for (unsigned i = 0; i < toCheck.size() ; ++i) {
+       if (cube.isEdgeOnMSlice(permutations[toCheck[i]]) == -1){
+            // std::cout << " " << permutations[toCheck[i]] << " " << std::endl;
+            counter++;
+       }
+    }
+    return  counter;
 }
 
-int Solver::missplacedEDU(Cube &cube){
+bool allZeroTwist(const Cube& cube, const std::vector<unsigned>& cornerIndices) {
+
+    for (int idx : cornerIndices) {
+        if (cube.twistTracker[idx] != 0)
+            return false;
+    }
+    return true;
+}
+
+
+int Solver::twistedCorners(Cube &cube){
     int counter = 0;
-    std::array<unsigned, 12> basePosition(cube.getBaseEdgePosition());
-    std::array<unsigned, 12> permutations(cube.getPermutations());
-    std::map<unsigned, Slice> UDE_mapping = cube.UDE_mapping;
 
-    for (int i = 0; i < 12; ++i) {
-        // std::cout << faceToStr(cube.allEdges[i].first) << faceToStr(cube.allEdges[i].second) << " edge contains " << faceToStr(cube.allEdges[permutations[i]].first) << faceToStr(cube.allEdges[permutations[i]].second) << std::endl;
-
-        // std::cout << UDE_mapping[basePosition[i]] << " != " <<  UDE_mapping[permutations[i]] << std::endl;
-
-        if (UDE_mapping[basePosition[i]] != UDE_mapping[permutations[i]])
-            counter++;
+    for (auto &index : cube.baseCornerPositions){
+        if (cube.twistTracker[index] != 0)
+            counter ++;
     }
 
-    // std::cout << counter << std::endl;
-
-    return  static_cast<int>(std::ceil(static_cast<double>(counter)) / 2);
+    return static_cast<int>(std::ceil(static_cast<double>(counter) / 4));
 }
+
+int Solver::twistedCorners(){
+    return twistedCorners(*_cube);
+}
+
+
+
 
 void Solver::solve(){
 

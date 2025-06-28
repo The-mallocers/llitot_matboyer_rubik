@@ -41,6 +41,29 @@ std::string colorToStr(Color color){
     }
 }
 
+std::string cornerToStr(Corner corner){
+    switch (corner)
+    {
+    case UFL:
+        return "UFL";
+    case UFR:
+        return "UFR";
+    case UBR:
+        return "UBR";
+    case UBL:
+        return "UBL";
+    case DFL:
+        return "DFL";
+    case DFR:
+        return "DFR";
+    case DBR:
+        return "DBR";
+    case DBL:
+        return "DBL";
+    default:
+        return "error";
+    }
+}
 
 std::string localToStr(LocalCoordinate local){
     switch (local)

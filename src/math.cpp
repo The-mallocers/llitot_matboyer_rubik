@@ -14,7 +14,6 @@ int doProduct(const std::vector<int>&A, const std::vector<int> &B){
     return product;
 }
 
-
 std::vector<int> crossProduct3(const std::vector<int>&A, const std::vector<int> &B){
     if (A.size() != 3 || B.size() != 3)
         throw std::invalid_argument("Both vectors must be of size 3");

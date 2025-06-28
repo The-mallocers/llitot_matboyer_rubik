@@ -9,6 +9,49 @@ std::vector<std::pair<Face, Face>> Cube::allEdges = {
     {F,R}, {F,L}, {B,R}, {B,L}
 };
 
+
+std::vector<Corner> Cube::allCorners = {
+    UFL, UFR, UBR, UBL,
+    DFR, DFL, DBL, DBR
+};
+
+
+std::map<Corner , std::array<Face, 3>> Cube::faceOfCorner = {
+    {UFL, {U, F , L}},
+    {UFR, {U, F , R}},
+    {UBR, {U, B , R}},
+    {UBL, {U, B , L}},
+    {DFL, {D, F , L}},
+    {DFR, {D, F , R}},
+    {DBR, {D, B , R}},
+    {DBL, {D, B , L}}
+};
+
+std::map<Edge, std::vector<Slice>> Cube::slicesOfEdges = {
+    { UF, {SLICE_U, SLICE_F, SLICE_M}},
+    { UR, {SLICE_U, SLICE_R, SLICE_S}},
+    { UB, {SLICE_U, SLICE_B, SLICE_M}},
+    { UL, {SLICE_U, SLICE_L, SLICE_S}},
+    { DF, {SLICE_D, SLICE_F, SLICE_M}},
+    { DR, {SLICE_D, SLICE_R, SLICE_S}},
+    { DB, {SLICE_D, SLICE_B, SLICE_M}},
+    { DL, {SLICE_D, SLICE_L, SLICE_S}},
+    { FR, {SLICE_F, SLICE_R, SLICE_E}},
+    { FL, {SLICE_F, SLICE_L, SLICE_E}},
+    { BR, {SLICE_B, SLICE_R, SLICE_E}},
+    { BL, {SLICE_B, SLICE_L, SLICE_E}}
+};
+
+std::map<Face, std::vector<Corner>> Cube::_relatedCorners = {
+    {U, {UFL, UFR, UBR, UBL}},
+    {D, {DFL, DFR, DBR, DBL}},
+    {F, {UFL, UFR, DFR, DFL}},
+    {B, {UBR, UBL, DBL, DBR}},
+    {R, {UFR, UBR, DBR, DFR}},
+    {L, {UBL, UFL, DFL, DBL}}
+};
+
+
 std::map<Face, std::vector<int>> Cube::normals = {
     {Face::U , {0, 1, 0}},
     {Face::D , {0, -1, 0}},
@@ -26,20 +69,14 @@ std::map<LocalCoordinate, std::vector<int>> Cube::localCoordinatesIndices = {
 };
 
 std::map<Face, std::vector<Face>> Cube::_relatedFaces = {
-    // {F, {U, R, D, L}},
-    // {B, {U, R, D, L}},  // reversed from {U, L, D, R} to match clockwise rotation
-    // {U, {B, R, F, L}},
-    // {D, {F, R, B, L}},
-    // {R, {U, F, D, B}},
-    // {L, {U, F, D, B}},  // reversed from {U, B, D, F}
-
-    {F, {U, R, D, L}},  // Front face: Up, Right, Down, Left (clockwise)
-    {B, {U, L, D, R}},  // Back face: Up, Left, Down, Right (clockwise)
-    {U, {B, R, F, L}},  // Up face: Back, Right, Front, Left (clockwise)
-    {D, {F, R, B, L}},  // Down face: Front, Right, Back, Left (clockwise)
-    {R, {U, B, D, F}},  // Right face: Up, Back, Down, Front (clockwise)
-    {L, {U, F, D, B}},  // Left face: Up, Front, Down, Back (clockwise)
+    {F, {U, R, D, L}},
+    {B, {U, L, D, R}},
+    {U, {B, R, F, L}},
+    {D, {F, R, B, L}},
+    {R, {U, B, D, F}},
+    {L, {U, F, D, B}},
 };
+
 
 // constructors and destructor
 Cube::Cube() : _order(0) {
@@ -52,7 +89,7 @@ Cube::Cube(const int order) : _order(order) {
     
 }
 
-Cube::Cube(const Cube& toCopy) : _order(toCopy._order), _data(toCopy._data), _localCoordinates(toCopy._localCoordinates) , permutations(toCopy.permutations),  _baseEdgePositions(toCopy._baseEdgePositions),  UDE_mapping(toCopy.UDE_mapping), flipTracker(toCopy.flipTracker){}
+Cube::Cube(const Cube& toCopy) : _order(toCopy._order), _data(toCopy._data), _localCoordinates(toCopy._localCoordinates) , permutations(toCopy.permutations),  _baseEdgePositions(toCopy._baseEdgePositions), _relativeCornerDeltas(toCopy._relativeCornerDeltas), flipTracker(toCopy.flipTracker),twistTracker(toCopy.twistTracker), cornerPermutations(toCopy.cornerPermutations), baseCornerPositions(toCopy.baseCornerPositions){}
 Cube::Cube(Cube&& toMove) noexcept : _order(std::move(toMove._order)), _data(std::move(toMove._data)){}
 Cube::~Cube(){}
 
@@ -75,33 +112,6 @@ Cube &Cube::operator=(Cube&& toMove) noexcept{
 
     return *this;
 }
-
-
-// private memeber functions
-
-// void Cube::createFaceRelations() {
-//     for (unsigned i = 0; i < 6 ; ++i){
-//         const std::vector<int> &normal_1 = normals[static_cast<Face>(i)];
-//         std::vector<Face> relatedFaces;
-
-//         for (unsigned j = 0; j < 6 ; ++j) {
-//             if (i == j)
-//                 continue;
-//             const std::vector<int> &normal_2 = normals[static_cast<Face>(j)];
-//             const std::vector<int> crossProduct = crossProduct3(normal_1, normal_2);
-
-//             int vectorSum = std::accumulate(crossProduct.begin(), crossProduct.end(), 0);
-//             if (vectorSum == 0 || crossProduct == multiplyVector(normal_1, -1))
-//                 continue;
-
-//             relatedFaces.push_back(static_cast<Face>(j));
-//         }
-
-
-//         this->_relatedFaces[static_cast<Face>(i)] = relatedFaces;
-//     }
-
-// }
 
 
 std::map<LocalCoordinate, std::vector<int>> Cube::findLocalCoordinates(Face face){
@@ -186,7 +196,36 @@ void Cube::init() {
     for (int i = 0 ; i < 12 ; i++){
         permutations[i] = i;
         _baseEdgePositions[i] = i;
-        UDE_mapping[i] = i < 8 ? UD : E;
+        // UDE_mapping[i] = i < 8 ? UD : E;
+    }
+
+    for (int i = 0; i < 8; i++){
+        cornerPermutations[i] = i;
+        baseCornerPositions[i] = i;
+    }
+
+
+    for (auto &[moveFace, relativeCorners] : _relatedCorners) {
+
+        // std::cout <<"relativeCornerDeltas for face : " << faceToStr(moveFace) << std::endl;
+        std::vector<std::pair<Corner, Delta>> relativeDeltas;
+
+        for (unsigned i = 0; i < relativeCorners.size(); i++){
+            Delta whatDelta = NULL_DELTA;
+
+            if (moveFace == F || moveFace == L)
+                whatDelta = i % 2 == 0 ? CW : CCW;
+            if (moveFace == B || moveFace == R)
+                whatDelta = i % 2 == 0 ? CCW : CW;
+
+            relativeDeltas.push_back(std::make_pair(relativeCorners[i], whatDelta));
+            // std::cout << "\t"<< cornerToStr(relativeDeltas[i].first) << " : "<< relativeDeltas[i].second << std::endl;
+
+        }
+
+
+        _relativeCornerDeltas[moveFace] = relativeDeltas;
+
     }
     // std::cout << ">---------1--------<" << std::endl;
 
@@ -219,35 +258,21 @@ bool Cube::isSolved() const {
     return false;
 }
 
-
 void Cube::applyMove(t_move move) {
-//     std::cout << "=== R MOVE DEBUG ===" << std::endl;
-// std::cout << "Related faces for R: ";
-// for (auto face : _relatedFaces[move.face]) {
-//     std::cout << faceToStr(face) << " ";
-// }
-// std::cout << std::endl;
-
-    /////////////
-
-
-// Apply the move logic...
-
-
-    for (int times = 0 ; times < move.times; times++){
+    for (int times = 0; times < move.times; times++) {
         std::vector<unsigned> indicesOfAffectedEdges;
-
         for (auto& relatedFace : _relatedFaces[move.face])
             indicesOfAffectedEdges.push_back(indexOfEdge({move.face, relatedFace}));
-
+        
         std::vector<unsigned> indicesOfAffectedEdgesCpy(indicesOfAffectedEdges);
-        for (unsigned i = 0; i < indicesOfAffectedEdges.size() ; ++i) {
+        for (unsigned i = 0; i < indicesOfAffectedEdges.size(); ++i) {
             int newStateIndex = (i + move.direction + 4) % 4;
             indicesOfAffectedEdgesCpy[newStateIndex] = indicesOfAffectedEdges[i];
         }
 
         std::array<unsigned, 12> tempPermutations = permutations;
         std::array<bool, 12> tempFlipTracker = flipTracker;
+
         for (unsigned i = 0; i < indicesOfAffectedEdges.size(); ++i) {
             unsigned to = indicesOfAffectedEdges[i];
             unsigned from = indicesOfAffectedEdgesCpy[i];
@@ -256,36 +281,52 @@ void Cube::applyMove(t_move move) {
             if (move.face == F || move.face == B)
                 flipTracker[to] = !tempFlipTracker[from];
             else
-                flipTracker[to] = tempFlipTracker[from]; 
-        }
-
-        /////////////// commented out because it's making everything slow
-        // t_rotation originalState = encodeRotation(move);
-        //     t_rotation postRotationState = originalState.rotate(move.direction, *this);
-        //     const std::vector<Color> originalCubeData(_data);
-
-        //     for (unsigned i = 0; i < 9; i++){
-        //         int oldValueIndex = originalState.faceIndices[i];
-        //         int newValueIndex = postRotationState.faceIndices[i];
-
-        //         _data[oldValueIndex] = originalCubeData[newValueIndex];
-        //     }
-        //     for (unsigned i = 0; i < 4 ; i++){
-        //         for (unsigned j = 0; j < 3 ; j++){
-        //             int oldValueIndex = originalState.edgesIndices[i][j];
-        //             int newValueIndex = postRotationState.edgesIndices[i][j];
-
-        //             _data[oldValueIndex] = originalCubeData[newValueIndex];
-        //         }
-        //     }
+                flipTracker[to] = tempFlipTracker[from];
 
         }
 
-    // std::cout << ">---------2--------<" << std::endl;
-    // print();
+            // std::cout << "Permutations after : " << move.face << move.direction << std::endl;
 
+            // for (auto &perm : permutations){
+            //     std::cout << perm << " ";
+            // }
+            // std::cout << std::endl;
+
+
+        std::vector<unsigned> indicesOfRelatedCorners;
+        for (auto& relatedCorner : _relatedCorners[move.face])
+            indicesOfRelatedCorners.push_back(indexOfCorner(relatedCorner, allCorners));
+        
+        std::vector<unsigned> indicesOfRelatedCornersCpy(indicesOfRelatedCorners);
+        for (unsigned i = 0; i < indicesOfRelatedCornersCpy.size(); ++i) {
+            int newStateIndex = (i + move.direction + 4) % 4;
+            indicesOfRelatedCornersCpy[newStateIndex] = indicesOfRelatedCorners[i];
+        }
+
+        std::array<unsigned, 8> tempCornerPermutations = cornerPermutations;
+        std::array<unsigned, 8> tempTwistTracker = twistTracker;
+
+        for (unsigned i = 0; i < indicesOfRelatedCorners.size(); ++i) {
+            unsigned toSlot = indicesOfRelatedCorners[i];
+            unsigned fromSlot = indicesOfRelatedCornersCpy[i];
+            cornerPermutations[toSlot] = tempCornerPermutations[fromSlot];
+        }
+
+        bool affectsTwist = (move.face == F || move.face == B || move.face == R || move.face == L);
+
+        for (unsigned i = 0; i < indicesOfRelatedCorners.size(); ++i) {
+            unsigned toSlot = indicesOfRelatedCorners[i];
+            unsigned fromSlot = indicesOfRelatedCornersCpy[i];
+            unsigned pieceID = tempCornerPermutations[fromSlot];
+
+            cornerPermutations[toSlot] = pieceID;
+            if (affectsTwist) {
+                int twistDelta = _relativeCornerDeltas[move.face][i].second;
+                twistTracker[pieceID] = (tempTwistTracker[pieceID] + twistDelta) % 3;
+            }
+        }
+    }
 }
-
 
 void Cube::printFace(Face face){
 
@@ -365,7 +406,16 @@ unsigned Cube::indexOfEdge(const std::pair<Face, Face> &toFind){
             break;
         count++;
     }
+    return count;
+}
 
+unsigned Cube::indexOfCorner(Corner corner, std::vector<Corner> slots){
+    unsigned count = 0;
+    for (auto &currentCorner : slots){
+        if (currentCorner == corner)
+            break;
+        count++;
+    }
     return count;
 }
 
@@ -380,8 +430,13 @@ std::array<unsigned, 12> Cube::getBaseEdgePosition(){
 std::array<unsigned, 12> Cube::getPermutations(){
     return permutations;
 }
-int Cube::encodeEdgeOrientation() {
-    int key = 0;
+
+std::array<unsigned, 8> Cube::getTwistTracker(){
+    return twistTracker;
+}
+
+unsigned Cube::encodeEdgeOrientation() {
+    unsigned key = 0;
 
     for (int i = 0; i < 11; ++i) {
         key <<= 1;
@@ -390,13 +445,60 @@ int Cube::encodeEdgeOrientation() {
     return key;
 }
 
+int indexOfSlice(Slice toFind, std::vector<Slice> &in){
+    int index = -1;
 
-int Cube::encodeMissplacedEdgesEDU() {
-    int key = 0;
+    for (unsigned i = 0; i < in.size(); i++){
+        if (toFind == in[i] ){
+            index = i;
+            break;
+        }
 
-    for (int i = 0; i < 12; ++i) {
-        key <<= 1;
-        key |= UDE_mapping[_baseEdgePositions[i]] != UDE_mapping[permutations[i]];
     }
+
+    // std::cout << index << std::endl;
+    return index;
+}
+
+int Cube::isEdgeOnMSlice(unsigned currentPosition) {
+    //     for (auto &perm : permutations){
+    //     std::cout << perm << " ";
+    // }
+    //     std::cout << std::endl;
+    return indexOfSlice(SLICE_M, slicesOfEdges[static_cast<Edge>(currentPosition)]);
+}
+
+unsigned long Cube::encodeMissplacedEdges_SLICE_M() {
+    unsigned key = 0;
+    std::vector<unsigned> toCheck = {0,2,4,6};
+    
+    for (int i = 0; i < 4; ++i) {
+        key <<= 1;
+        unsigned pos = toCheck[i];
+
+        if (isEdgeOnMSlice(permutations[pos]) != -1)
+            key |= 1;
+        else
+            key |= 0;
+    }
+    
     return key;
 }
+
+unsigned long Cube::encodetwistedCorners(){
+    return encodeTwistedCorners({0,1,2,3, 4,5, 6,7});
+}
+
+unsigned long Cube::encodeTwistedCorners(const std::vector<unsigned> &toCheck) {
+    unsigned key = 0;
+
+    for (auto &index : toCheck ){
+        // key +=  twistTracker[index];
+        // key *= 3;
+
+        key = key * 3 + twistTracker[index];
+    }
+    return key;
+
+}
+
